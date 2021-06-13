@@ -1,1 +1,3 @@
-{"nvd": {"suppression-file": "nvd_suppressions.xml"}}
+{"delete-config?": false,
+ "nvd": {"suppression-file": "nvd_suppressions.xml",
+         "fail-threshold": 11.0}}

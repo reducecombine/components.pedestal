@@ -18,6 +18,24 @@ commands:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "project.clj" }}
+  nvd:
+    parameters:
+      today:
+        description: "Today's date. This results in a cache that will last 1 day (only on success)."
+        type: string
+    steps:
+      - setup-env
+      - shellcheck/install
+      - run: "shellcheck $NVD_SCRIPT"
+      - restore_cache:
+          keys:
+            - v1-nvd-{{ checksum "project.clj" }}-${ date +'%m/%d/%Y' }
+      - run: "$NVD_SCRIPT"
+      - save_cache:
+          paths:
+            - ~/.m2/repository/org/owasp/dependency-check-utils/6.2.2/data
+          key: v1-nvd-{{ checksum "project.clj" }}-${ date +'%m/%d/%Y' }
+   
 
 executors:
   lein-executor:
@@ -47,10 +65,8 @@ jobs:
   nvd:
     executor: lein-executor
     steps:
-      - setup-env
-      - shellcheck/install
-      - run: "shellcheck $NVD_SCRIPT"
-      - run: "$NVD_SCRIPT"
+      - nvd:
+          today: "${date +'%m/%d/%Y'}"
   deploy:
     executor: lein-executor
     steps:
